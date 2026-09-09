@@ -1,0 +1,28 @@
+# Local environments, editor state and temporary files
+.venv/
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.idea/
+.vscode/
+node_modules/
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+*.log
+~$*
+# Local credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+# Original selected models in outputs/ are included.
+/data/
+*.h5
+!outputs/mitbih_model.h5
+!outputs/ptbdb_model.h5
