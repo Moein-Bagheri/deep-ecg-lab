@@ -1,34 +1,36 @@
-# Deep ECG Lab
+# Deep ECG lab
 
-An academic signal-classification project using **GRU recurrent networks** for two ECG tasks: five-class heartbeat classification on MIT-BIH and binary classification on PTBDB.
+**93% accuracy can hide a lot.** A two-layer GRU classifies heartbeats from ECG signals. The headline number is high, but the model recognizes only 6% of supraventricular beats.
 
-**Python · TensorFlow/Keras · pandas · NumPy · scikit-learn**
+<img src="outputs/mitbih_confusion_matrix.png" width="480" alt="MIT-BIH confusion matrix: normal, ventricular and unknown beats are mostly recognized; supraventricular beats are mostly predicted as normal">
 
-## Included work
+*TensorFlow · Keras · scikit-learn*
 
-| Task | Entry point | Saved model |
-| --- | --- | --- |
-| MIT-BIH: five heartbeat classes | [`main_mitbih.py`](main_mitbih.py) | `outputs/mitbih_model.h5` |
-| PTBDB: normal/abnormal classification | [`main_ptbdb.py`](main_ptbdb.py) | `outputs/ptbdb_model.h5` |
+## What I did
 
-The original trained models, confusion matrices and training histories are included. The figures show the completed course runs.
+- Built a two-layer GRU (64 and 32 units, dropout 0.2) for heartbeat sequences.
+- Trained it on MIT-BIH for five beat classes (normal, supraventricular, ventricular, fusion, unknown) and on PTBDB for normal against abnormal.
+- Saved both trained models, their confusion matrices and training curves.
 
-![MIT-BIH confusion matrix](outputs/mitbih_confusion_matrix.png)
+## What I found
 
-![PTBDB training history](outputs/ptbdb_history.png)
+| Task | Test beats | Accuracy | Recall by class |
+| --- | ---: | ---: | --- |
+| MIT-BIH, five classes | 21,892 | 93.3% | normal 97% · unknown 93% · ventricular 89% · fusion 35% · supraventricular 6% |
+| PTBDB, normal or abnormal | 2,911 | 85.5% | abnormal 96% · normal 59% |
 
-## Data and setup
+- **Imbalance wins.** Normal beats are 83% of MIT-BIH, and 481 of 556 supraventricular beats are called normal.
+- **On PTBDB the model leans toward "abnormal".** It catches 96% of abnormal beats, but flags 41% of normal ones too.
+- What I'd try next: class weights or resampling, and reporting macro F1 beside accuracy.
 
-The raw ECG CSV files remain outside this repository. Place the original course data in:
+## Try it
+
+The trained models and figures are in `outputs/`, so you can look at the results without the data. To retrain, put the MIT-BIH and PTBDB CSV files in `data/`:
 
 ```text
-data/mitbih_train.csv
-data/mitbih_test.csv
-data/ptbdb_normal.csv
-data/ptbdb_abnormal.csv
+data/mitbih_train.csv   data/mitbih_test.csv
+data/ptbdb_normal.csv   data/ptbdb_abnormal.csv
 ```
-
-From this repository directory:
 
 ```powershell
 python -m venv .venv
@@ -37,8 +39,12 @@ python -m venv .venv
 .\.venv\Scripts\python.exe main_ptbdb.py
 ```
 
-Both entry points perform their original training and export workflows. The saved outputs can be inspected without downloading the datasets. The dependency list records the libraries imported by the scripts; no new environment lock is implied.
+## Layout
 
-## Course context
+| Path | What's there |
+| --- | --- |
+| [`main_mitbih.py`](main_mitbih.py) | Five-class heartbeat model |
+| [`main_ptbdb.py`](main_ptbdb.py) | Normal or abnormal model |
+| [`outputs/`](outputs/) | Saved models, confusion matrices and training curves |
 
-Developed for deep learning coursework at the University of Isfahan. The source identifies Moeinreza Bagheri as its author. This project connects sequence modeling with the signal-processing side of the computer-engineering curriculum.
+Deep learning course project, University of Isfahan, 2025.
