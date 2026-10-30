@@ -47,4 +47,4 @@ python -m venv .venv
 | [`main_ptbdb.py`](main_ptbdb.py) | Normal or abnormal model |
 | [`outputs/`](outputs/) | Saved models, confusion matrices and training curves |
 
-Deep learning course project, University of Isfahan, 2025.
+Deep learning course project, University of Isfahan, 2026.
