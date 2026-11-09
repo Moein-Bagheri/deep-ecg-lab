@@ -1,8 +1,8 @@
 # Deep ECG lab
 
-**93% accuracy can hide a lot.** A two-layer GRU classifies heartbeats from ECG signals. The headline number is high, but the model recognizes only 6% of supraventricular beats.
+**95% accuracy can hide a lot.** A two-layer GRU classifies heartbeats from ECG signals. The headline number is high, but the model misses more than half of the supraventricular beats.
 
-<img src="outputs/mitbih_confusion_matrix.png" width="480" alt="MIT-BIH confusion matrix: normal, ventricular and unknown beats are mostly recognized; supraventricular beats are mostly predicted as normal">
+<img src="outputs/mitbih_confusion_matrix.png" width="480" alt="MIT-BIH confusion matrix: normal, ventricular and unknown beats are mostly recognized; supraventricular and fusion beats are mostly predicted as normal">
 
 *TensorFlow · Keras · scikit-learn*
 
@@ -16,11 +16,13 @@
 
 | Task | Test beats | Accuracy | Recall by class |
 | --- | ---: | ---: | --- |
-| MIT-BIH, five classes | 21,892 | 93.3% | normal 97% · unknown 93% · ventricular 89% · fusion 35% · supraventricular 6% |
+| MIT-BIH, five classes | 21,892 | 95.1% | normal 99% · unknown 92% · ventricular 76% · supraventricular 44% · fusion 31% |
 | PTBDB, normal or abnormal | 2,911 | 85.5% | abnormal 96% · normal 59% |
 
-- **Imbalance wins.** Normal beats are 83% of MIT-BIH, and 481 of 556 supraventricular beats are called normal.
-- **On PTBDB the model leans toward "abnormal".** It catches 96% of abnormal beats, but flags 41% of normal ones too.
+- **Imbalance wins.** Normal beats are 83% of MIT-BIH, and 300 of 556 supraventricular beats are called normal.
+- **Rare classes wobble.** Three training seeds agree on accuracy (95.1–95.9%), not on the rare classes: supraventricular recall moves between 37% and 49%, fusion between 31% and 59%.
+- **An earlier version said 93.3% and 6%.** It had no seed and used the test set as its validation set. Validation now comes from the training data, and three seeded runs give the numbers above.
+- **On PTBDB the model leans toward "abnormal".** It catches 96% of abnormal beats, but flags 41% of normal ones too. PTBDB has no patient IDs, so its split is by beat, and one patient's beats can sit in both training and test.
 - What I'd try next: class weights or resampling, and reporting macro F1 beside accuracy.
 
 ## Try it
@@ -32,8 +34,10 @@ data/mitbih_train.csv   data/mitbih_test.csv
 data/ptbdb_normal.csv   data/ptbdb_abnormal.csv
 ```
 
+It needs Python 3.12 or 3.13:
+
 ```powershell
-python -m venv .venv
+py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main_mitbih.py
 .\.venv\Scripts\python.exe main_ptbdb.py

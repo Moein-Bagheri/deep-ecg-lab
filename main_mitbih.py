@@ -19,6 +19,7 @@ import seaborn as sns
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split
 
 # --- Configuration ---
 TRAIN_PATH = 'data/mitbih_train.csv'
@@ -28,6 +29,12 @@ OUTPUT_DIR = 'outputs'
 BATCH_SIZE = 128
 EPOCHS = 10
 NUM_CLASSES = 5
+VAL_FRACTION = 0.1  # carved out of the training set; the test set is only used once, at the end
+SEED = 42
+
+# Same weights, same split, same numbers on every run
+tf.keras.utils.set_random_seed(SEED)
+tf.config.experimental.enable_op_determinism()
 
 # Ensure output directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -136,6 +143,13 @@ if __name__ == "__main__":
     # 1. Load Data
     X_train, y_train, X_test, y_test = load_mitbih_data()
 
+    # The training CSV is sorted by class, so the validation set is a stratified random sample,
+    # not the last rows (Keras' validation_split would take only fusion and unknown beats)
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_train, y_train, test_size=VAL_FRACTION, stratify=y_train, random_state=SEED
+    )
+    print(f" Validation split from training data: {X_val.shape[0]} beats")
+
     # 2. Build Model
     model = build_multi_class_model(input_shape=(X_train.shape[1], 1), num_classes=NUM_CLASSES)
     model.summary()
@@ -146,7 +160,7 @@ if __name__ == "__main__":
         X_train, y_train,
         epochs=EPOCHS,
         batch_size=BATCH_SIZE,  # Increased batch size
-        validation_data=(X_test, y_test),
+        validation_data=(X_val, y_val),
         verbose=1
     )
 
